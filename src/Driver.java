@@ -1,8 +1,54 @@
+/**
+ * Driver class for Project 1 in CSC330 Artificial Intelligence at DePauw University. 
+ * Contains code to read in file for Eight Puzzle game and checks validity. 
+ * 
+ * Created 2-13-2017
+ * @author Brad Burch and Katherine Martin  
+ */
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class Driver {
 
 	public static void main(String[] args)
 	{
-		System.out.println("Hello Brad");
+		String fileName = new String();
+		Scanner reader = new Scanner(System.in);
+		int[][] puzzle = new int[3][3];
+		
+		System.out.println("This program is used to solve the Eight-Puzzle using IDS and A*.");
+
+		System.out.print("Please enter a puzzle file you would like to solve: ");
+		fileName = reader.nextLine();
+		
+		try
+		{
+			File file = new File (fileName);
+			Scanner scanner = new Scanner(file);
+			
+			while (scanner.hasNext())
+			{
+				for (int i = 0; i < 3; i ++)
+				{
+					for (int j = 0; j < 3; j++)
+					{
+						puzzle[i][j] = scanner.nextInt();
+						System.out.print (puzzle[i][j] + " ");
+					}
+					System.out.println();
+				}
+			}
+		}
+		catch(FileNotFoundException e)
+		{
+			System.out.println("Unable to open the file " + fileName + ".");
+		}
+		catch(IOException e)
+		{
+			System.out.println("Could not read from " + fileName + ".");
+		}
 	}
 }
