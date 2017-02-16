@@ -13,8 +13,8 @@ public class State {
 	
 	public State(int[][] state, int depthLimit) 
 	{
-		this.state = state;
-		this.depthLimit = depthLimit;
+		this.setState(state);
+		this.setDepthLimit(depthLimit);
 	}
 	
 	public int[][] moveRight(int[][] initialState)
@@ -87,6 +87,30 @@ public class State {
 		state[x1][y1] = state[x2][y2];
 		state[x2][y2] = temp;
 		return state;
+	}
+
+	public int getDepthLimit() {
+		return depthLimit;
+	}
+
+	public void setDepthLimit(int depthLimit) {
+		this.depthLimit = depthLimit;
+	}
+
+	public int[][] getState() {
+		return state;
+	}
+
+	public void setState(int[][] state) {
+		this.state = state;
+	}
+
+	public int[][] getGoalState() {
+		return goalState;
+	}
+
+	public void setGoalState(int[][] goalState) {
+		this.goalState = goalState;
 	}
 
 }
