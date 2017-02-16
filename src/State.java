@@ -11,6 +11,8 @@ public class State {
 								 { 8, 0, 4 }, 
 								 { 7, 6, 5 }};
 	
+	public State(){}
+	
 	public State(int[][] state, int depthLimit) 
 	{
 		this.setState(state);
