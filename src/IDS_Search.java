@@ -58,21 +58,8 @@ public class IDS_Search
 			{
 				continue;
 			}
-
-			Node temp1 = new Node(actualNode, null);
-			Node temp2 = new Node(actualNode, null);
-			Node temp3 = new Node(actualNode, null);
-			Node temp4 = new Node(actualNode, null);
 			
-			temp2.moveDown(actualNode);
-			temp1.moveRight(actualNode);
-			temp3.moveLeft(actualNode);
-			temp4.moveUp(actualNode);
-			
-			actualNode.addChildren(temp1);
-			actualNode.addChildren(temp2);
-			actualNode.addChildren(temp3);
-			actualNode.addChildren(temp4);
+			actualNode.setChildren(actualNode.calculateChildren());
 			
 			for(Node node:actualNode.getChildrenList())
 			{

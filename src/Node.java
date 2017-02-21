@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,20 +13,39 @@ public class Node {
 	private List<Node> adjacenciesList;
 	private List<Node> children;
 	private int depthLevel;
+	private int[][] goalState = {{ 1, 2, 3 },
+			 { 8, 0, 4 }, 
+			 { 7, 6, 5 }};
 	
 //	public Node(){}
 	
 	public Node(int[][] currentState)
 	{
 		this.parent = null;
-		this.currentState = currentState;
+		this.currentState = new int[3][3];
+		
+		for(int i=0; i < 3; i++)
+		{
+			for(int j=0; j < 3; j++)
+			{
+				this.currentState[i][j] = currentState[i][j];
+			}
+		}
 	}
 	
 	public Node(Node parent, int[][] currentState)
 	{
 		this.parent = parent;
 		this.adjacenciesList = null;
-		this.currentState = currentState;
+		this.currentState = new int[3][3];
+		
+		for(int i=0; i < 3; i++)
+		{
+			for(int j=0; j < 3; j++)
+			{
+				this.currentState[i][j] = currentState[i][j];
+			}
+		}
 	}
 	
 	public void addNeighbor(Node node)
@@ -33,9 +53,9 @@ public class Node {
 		this.adjacenciesList.add(node);
 	}
 	
-	public void addChildren(Node node)
+	public void addChildren(List<Node> node)
 	{
-		this.children.add(node);
+		this.children.addAll(node);
 	}
 	
 	public Node(int[][] currentState, Node parent)
@@ -81,14 +101,22 @@ public class Node {
 		this.depthLevel = depthLimit;
 	}
 	
-	public int getY(int num)
+	public void setChildren(List<Node> nodes)
+	{
+		this.children = nodes;
+	}
+	
+	public int getY()
 	{
 		int yPosition = 0;
 
-        for (int x = 0; x < 3; x++) {
-            for (int y = 0; y < 3; y++) {
-                if (currentState[x][y] == num) {
-                    yPosition = y;
+        for (int x = 0; x < 3; x++) 
+        {
+            for (int y = 0; y < 3; y++) 
+            {
+                if (currentState[x][y] == 0) 
+                {
+                    yPosition = x;
                     break;
                 }
             }
@@ -96,13 +124,16 @@ public class Node {
         return yPosition;
 	}
 	
-	public int getX(int num)
+	public int getX()
 	{
 		int xPosition = 0;
 
-        for (int x = 0; x < 3; x++) {
-            for (int y = 0; y < 3; y++) {
-                if (currentState[x][y] == num) {
+        for (int x = 0; x < 3; x++) 
+        {
+            for (int y = 0; y < 3; y++) 
+            {
+                if (currentState[x][y] == 0) 
+                {
                     xPosition = y;
                     break;
                 }
@@ -111,127 +142,147 @@ public class Node {
         return xPosition;
 	}
 	
-	public Node moveRight(Node initialState)
+	public Node moveRight(int x, int y)
 	{
-		boolean canBreak = false;
-		int[][] newState = new int[3][3];
-		for(int i = 0; i < 3; i++)
+		if(x < 2)
 		{
-			for (int j = 0; j < 3; j++)
+			int[][] newState = new int[3][3];
+			for(int i = 0; i < 3; i++)
 			{
-				if (currentState[i][j] == 0)
+				for (int j = 0; j < 3; j++)
 				{
-					if(j <= 1)
+					newState[i][j] = currentState[i][j];
+				}
+			}
+			newState = swap(newState, x, y, x, y+1);
+			
+			Node newNode = new Node(this, newState);
+			
+			if (newNode != null)
+			{
+				newNode.printNode();
+			}
+			return newNode;
+		}
+		return null;
+	}
+	
+	public Node moveLeft(int x, int y)
+	{
+		boolean hasMoved = false;
+		if(x < 2)
+		{
+			int[][] newState = new int[3][3];
+			for(int i = 0; i < 3; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					if (!hasMoved)
 					{
-						System.out.println("IN RIGHT");
-						newState = swap(currentState, i, j, i, j+1);
-						canBreak = true;
-						break;
+						if (currentState[i][j] == 0)
+						{
+							System.out.println("IN LEFT");
+							newState = swap(currentState, i, j, i, j-1);
+							hasMoved = true;
+						}
 					}
 				}
 			}
-				if (canBreak)
-				{
-					break;
-				}
+			Node newNode = new Node(this, newState);
+			
+			if (newNode != null)
+			{
+				newNode.printNode();
+			}
+			return newNode;
 		}
-		Node newNode = new Node(this, newState);
-		
-		if (newNode != null)
-			newNode.printNode();
-		return newNode;
+		return null;
 	}
 	
-	public Node moveLeft(Node initialState)
+	public Node moveUp(int x, int y)
 	{
-		boolean canBreak = false;
-		int[][] newState = new int[3][3];
-		for(int i = 0; i < 3; i++)
+		boolean hasMoved = false;
+		if(y > 0)
 		{
-			for (int j = 0; j < 3; j++)
+			int[][] newState = new int[3][3];
+			for(int i = 0; i < 3; i++)
 			{
-				if (initialState.getCurrentState()[i][j] == 0)
+				for (int j = 0; j < 3; j++)
 				{
-					if(j < 0)
+					if (!hasMoved)
 					{
-						System.out.println("IN LEFT");
-						newState = swap(initialState.getCurrentState(), i, j, i, j-1);
-						canBreak = true;
-						break;
-					}
+						if (currentState[i][j] == 0)
+						{
+							System.out.println("IN UP");
+							newState = swap(currentState, i, j, i-1, j);
+							hasMoved = true;
+						}
+					}					
 				}
+				System.out.println();
 			}
-			if(canBreak)
+			Node newNode = new Node(this, newState);
+			
+			if (newNode != null)
 			{
-				break;
+				newNode.printNode();
+				System.out.println("Printed the new node");
 			}
+			return newNode;
 		}
-		Node newNode = new Node(this, newState);
-		if (newNode != null)
-			newNode.printNode();
-		return newNode;
+		return null;
 	}
 	
-	public Node moveUp(Node initialState)
+	public Node moveDown(int x, int y)
 	{
-		int[][] newState = new int[3][3];
-		boolean canBreak = false;
-		
-		for(int i = 0; i < 3; i++)
+		if(y < 2)
 		{
-			for (int j = 0; j < 3; j++)
+			int[][] newState = new int[3][3];
+			for(int i = 0; i < 3; i++)
 			{
-				if (initialState.getCurrentState()[i][j] == 0)
+				for (int j = 0; j < 3; j++)
 				{
-					if(i > 0)
-					{
-						System.out.println("IN UP");
-						newState = swap(initialState.getCurrentState(), i, j, i-1, j);
-						canBreak = true;
-						break;
-					}
-				}
-			}
-			if(canBreak)
-			{
-				break;
-			}
-		}
-		Node newNode = new Node(this, newState);
-		if (newNode != null)
-			newNode.printNode();
-		
-		return newNode;
-	}
-	
-	public Node moveDown(Node initialState)
-	{
-		boolean canBreak = false;
-		int[][] newState = new int[3][3];
-		for(int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				if (initialState.getCurrentState()[i][j] == 0)
-				{
-					if(i <= 1)
+					if (currentState[i][j] == 0)
 					{
 						System.out.println("IN DOWN");
-						newState = swap(initialState.getCurrentState(), i, j, i+1, j);
-						canBreak = true;
-						break;
+						newState[i][j] = currentState[i][j];
 					}
 				}
 			}
-			if (canBreak)
+			newState = swap(newState, x, y, x, y+1);
+			Node newNode = new Node(this, newState);
+			
+			if (newNode != null)
 			{
-				break;
+				newNode.printNode();
+				System.out.println("Printed the new node");
 			}
+			return newNode;
 		}
-		Node newNode = new Node(this, newState);
-		if (newNode != null)
-			newNode.printNode();
-		return newNode;
+		return null;
+	}
+	
+	public List<Node> calculateChildren()
+	{
+		List<Node> children = new ArrayList<Node>();
+		int x = getX();
+		int y = getY();
+		
+		Node right = moveRight(x, y);
+		Node left = moveLeft(x, y);
+		Node up = moveUp(x, y);
+		Node down = moveDown(x, y);
+
+		if (right != null)
+			children.add(right);
+		if(left != null)
+			children.add(left);
+		if (up != null)
+			children.add(up);
+		if (down != null)
+			children.add(down);
+		
+		return children;
 	}
 	
 	public int[][] swap(int[][] state, int x1, int y1, int x2, int y2)
@@ -252,5 +303,13 @@ public class Node {
 			}
 			System.out.println();
 		}
+	}
+
+	public int[][] getGoalState() {
+		return goalState;
+	}
+
+	public void setGoalState(int[][] goalState) {
+		this.goalState = goalState;
 	}
 }
