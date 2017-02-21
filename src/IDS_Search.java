@@ -9,20 +9,14 @@ import java.util.Stack;
  */
 public class IDS_Search 
 {
-
 	private int moveCounter = 0;
-	private Stack<Node> stateStack = new Stack<>();
 	private Node startNode;
-	private State currentState;
 	private Node currentNode;
 	private Node goalNode;
 	private boolean isGoalFound;
 	private ArrayList<Node> closed = new ArrayList<Node>();
-
-	public IDS_Search(Node goalNode) 
-	{
-		this.goalNode = goalNode;
-	}
+	
+	public IDS_Search(){}
 
 	public void runIDS(Node startNode) 
 	{
@@ -30,23 +24,26 @@ public class IDS_Search
 
 		while (!isGoalFound) 
 		{
-			System.out.println();
+			System.out.println("HERE");
 			dfs(startNode, depth);
 			depth++;
 		}
+		System.out.println("AFTER WHILE LOOP");
 	}
 
 	public void dfs(Node startNode, int depth) 
 	{
-		Stack<int[][]> stack = new Stack<int[][]>();
+		Stack<Node> nodeStack = new Stack<>();
+		startNode.setDepthLevel(0);
+		State currentState = new State();
+		
 		currentState.setState(startNode.getCurrentState());
-		currentState.setDepthLimit(0);
-		stateStack.push(startNode);
+		nodeStack.push(startNode);
 
-		while (!stack.isEmpty()) 
+		while (!nodeStack.isEmpty()) 
 		{
-			Node actualNode = stateStack.pop();
-			System.out.println(actualNode + "");
+			Node actualNode = nodeStack.pop();
+			actualNode.printNode();
 
 			if (actualNode.getCurrentState() == currentState.getGoalState()) 
 			{
@@ -56,11 +53,32 @@ public class IDS_Search
 				return;
 			}
 
-			else if (actualNode.getCurrentState() != currentState.getGoalState()) 
+			
+			if (actualNode.getDepthLevel() >= depth)
 			{
-				currentState.setDepthLimit(currentState.getDepthLimit() + 1);
+				continue;
 			}
 
+			Node temp1 = new Node(actualNode, null);
+			Node temp2 = new Node(actualNode, null);
+			Node temp3 = new Node(actualNode, null);
+			Node temp4 = new Node(actualNode, null);
+			
+			temp2.moveDown(actualNode);
+			temp1.moveRight(actualNode);
+			temp3.moveLeft(actualNode);
+			temp4.moveUp(actualNode);
+			
+			actualNode.addChildren(temp1);
+			actualNode.addChildren(temp2);
+			actualNode.addChildren(temp3);
+			actualNode.addChildren(temp4);
+			
+			for(Node node:actualNode.getChildrenList())
+			{
+				node.setDepthLevel(actualNode.getDepthLevel());
+				nodeStack.push(node);
+			}
 		}
 	}
 }

@@ -36,11 +36,15 @@ public class Driver {
 					for (int j = 0; j < 3; j++)
 					{
 						puzzle[i][j] = scanner.nextInt();
-						System.out.print (puzzle[i][j] + " ");
+//						System.out.print (puzzle[i][j] + " ");
 					}
 					System.out.println();
 				}
 			}
+			
+			Node node = new Node(puzzle);
+			IDS_Search idsSearch = new IDS_Search();
+			idsSearch.runIDS(node);
 		}
 		catch(FileNotFoundException e)
 		{
