@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,17 +13,18 @@ public class Node {
 	private Node parent;
 	private List<Node> adjacenciesList;
 	private List<Node> children;
-	private int depthLevel;
+	private int depthLevel;	
+	private int heuristic;
 	private int[][] goalState = {{ 1, 2, 3 },
-			 { 8, 0, 4 }, 
-			 { 7, 6, 5 }};
+				{ 8, 0, 4 }, 
+				{ 7, 6, 5 }};
 	
-//	public Node(){}
-	
+	//Constructors
 	public Node(int[][] currentState)
 	{
 		this.parent = null;
 		this.currentState = new int[3][3];
+		this.heuristic = 0;
 		
 		for(int i=0; i < 3; i++)
 		{
@@ -38,6 +40,7 @@ public class Node {
 		this.parent = parent;
 		this.adjacenciesList = null;
 		this.currentState = new int[3][3];
+		this.heuristic = 0;
 		
 		for(int i=0; i < 3; i++)
 		{
@@ -48,22 +51,31 @@ public class Node {
 		}
 	}
 	
-	public void addNeighbor(Node node)
+	public Node(Node parent, int[][] currentState, int heuristic)
 	{
-		this.adjacenciesList.add(node);
+		this.parent = parent;
+		this.adjacenciesList = null;
+		this.currentState = new int[3][3];
+		this.heuristic = heuristic;
+		
+		for(int i=0; i < 3; i++)
+		{
+			for(int j=0; j < 3; j++)
+			{
+				this.currentState[i][j] = currentState[i][j];
+			}
+		}
 	}
 	
-	public void addChildren(List<Node> node)
-	{
-		this.children.addAll(node);
-	}
-	
-	public Node(int[][] currentState, Node parent)
-	{
-		this.setCurrentState(currentState);
-		this.setParent(parent);
+	//Getters and Setters for GoalState, CurrentState, Parent, AdjacenciesList, Children, DepthLevel
+	public int[][] getGoalState() {
+		return goalState;
 	}
 
+	public void setGoalState(int[][] goalState) {
+		this.goalState = goalState;
+	}
+	
 	public int[][] getCurrentState() 
 	{
 		return currentState;
@@ -106,17 +118,29 @@ public class Node {
 		this.children = nodes;
 	}
 	
+	//Add nodes to lists
+	public void addNeighbor(Node node)
+	{
+		this.adjacenciesList.add(node);
+	}
+	
+	public void addChildren(List<Node> node)
+	{
+		this.children.addAll(node);
+	}
+
+	//Gets the X and Y positions for where 0 is
 	public int getY()
 	{
 		int yPosition = 0;
 
-        for (int x = 0; x < 3; x++) 
+        for (int y = 0; y < 3; y++) 
         {
-            for (int y = 0; y < 3; y++) 
+            for (int x = 0; x < 3; x++) 
             {
-                if (currentState[x][y] == 0) 
+                if (currentState[y][x] == 0) 
                 {
-                    yPosition = x;
+                    yPosition = y;
                     break;
                 }
             }
@@ -128,13 +152,13 @@ public class Node {
 	{
 		int xPosition = 0;
 
-        for (int x = 0; x < 3; x++) 
+        for (int y = 0; y < 3; y++) 
         {
-            for (int y = 0; y < 3; y++) 
+            for (int x = 0; x < 3; x++) 
             {
-                if (currentState[x][y] == 0) 
+                if (currentState[y][x] == 0) 
                 {
-                    xPosition = y;
+                    xPosition = x;
                     break;
                 }
             }
@@ -142,6 +166,7 @@ public class Node {
         return xPosition;
 	}
 	
+	//Move methods 
 	public Node moveRight(int x, int y)
 	{
 		if(x < 2)
@@ -154,14 +179,11 @@ public class Node {
 					newState[i][j] = currentState[i][j];
 				}
 			}
-			newState = swap(newState, x, y, x, y+1);
+//			System.out.println("IN RIGHT");
+			newState = swap(newState, x, y, x+1, y);
+			Node newNode = new Node(this, newState, calculateHeuristic(newState));
+//			newNode.printNode();
 			
-			Node newNode = new Node(this, newState);
-			
-			if (newNode != null)
-			{
-				newNode.printNode();
-			}
 			return newNode;
 		}
 		return null;
@@ -169,31 +191,22 @@ public class Node {
 	
 	public Node moveLeft(int x, int y)
 	{
-		boolean hasMoved = false;
-		if(x < 2)
+		if(x > 0)
 		{
 			int[][] newState = new int[3][3];
 			for(int i = 0; i < 3; i++)
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					if (!hasMoved)
-					{
-						if (currentState[i][j] == 0)
-						{
-							System.out.println("IN LEFT");
-							newState = swap(currentState, i, j, i, j-1);
-							hasMoved = true;
-						}
-					}
+					newState[i][j] = currentState[i][j];
 				}
 			}
-			Node newNode = new Node(this, newState);
+//			System.out.println("IN LEFT");
+			newState = swap(newState, x, y, x-1, y);
 			
-			if (newNode != null)
-			{
-				newNode.printNode();
-			}
+			Node newNode = new Node(this, newState, calculateHeuristic(newState));
+//			newNode.printNode();
+				
 			return newNode;
 		}
 		return null;
@@ -201,7 +214,6 @@ public class Node {
 	
 	public Node moveUp(int x, int y)
 	{
-		boolean hasMoved = false;
 		if(y > 0)
 		{
 			int[][] newState = new int[3][3];
@@ -209,25 +221,15 @@ public class Node {
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					if (!hasMoved)
-					{
-						if (currentState[i][j] == 0)
-						{
-							System.out.println("IN UP");
-							newState = swap(currentState, i, j, i-1, j);
-							hasMoved = true;
-						}
-					}					
+					newState[i][j] = currentState[i][j];
 				}
-				System.out.println();
 			}
-			Node newNode = new Node(this, newState);
+//			System.out.println("IN UP");
+			newState = swap(newState, x, y, x, y-1);
 			
-			if (newNode != null)
-			{
-				newNode.printNode();
-				System.out.println("Printed the new node");
-			}
+			Node newNode = new Node(this, newState, calculateHeuristic(newState));
+//			newNode.printNode();
+				
 			return newNode;
 		}
 		return null;
@@ -242,26 +244,21 @@ public class Node {
 			{
 				for (int j = 0; j < 3; j++)
 				{
-					if (currentState[i][j] == 0)
-					{
-						System.out.println("IN DOWN");
-						newState[i][j] = currentState[i][j];
-					}
+					newState[i][j] = currentState[i][j];
 				}
 			}
-			newState = swap(newState, x, y, x, y+1);
-			Node newNode = new Node(this, newState);
+//			System.out.println("IN DOWN");
+			newState = swap(newState, x, y, x, y + 1);
 			
-			if (newNode != null)
-			{
-				newNode.printNode();
-				System.out.println("Printed the new node");
-			}
+			Node newNode = new Node(this, newState, calculateHeuristic(newState));
+//			newNode.printNode();
+			
 			return newNode;
 		}
 		return null;
 	}
 	
+	//Calculates the children for each node. 
 	public List<Node> calculateChildren()
 	{
 		List<Node> children = new ArrayList<Node>();
@@ -287,9 +284,9 @@ public class Node {
 	
 	public int[][] swap(int[][] state, int x1, int y1, int x2, int y2)
 	{
-		int temp = state[x1][y1];
-		state[x1][y1] = state[x2][y2];
-		state[x2][y2] = temp;
+		int temp = state[y1][x1];
+		state[y1][x1] = state[y2][x2];
+		state[y2][x2] = temp;
 		return state;
 	}
 	
@@ -303,13 +300,39 @@ public class Node {
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
-
-	public int[][] getGoalState() {
-		return goalState;
+	
+	public void printChildren()
+	{
+		for(int i = 0; i < children.size(); i++)
+		{
+			System.out.println("New Child");
+			children.get(i).printNode();
+		}
 	}
-
-	public void setGoalState(int[][] goalState) {
-		this.goalState = goalState;
+	
+	public int calculateHeuristic(int[][] currentState)
+	{
+		State state = new State();
+		int[][] goal = state.getGoalState();
+		int count = 0;
+		
+		for(int i = 0; i < 3; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				if (goal[i][j] != currentState[i][j] && goal[i][j] != 0)
+				{
+					count++;
+				}
+			}
+		}
+				return count;
+	}
+	
+	public int getHeuristic()
+	{
+		return heuristic;
 	}
 }

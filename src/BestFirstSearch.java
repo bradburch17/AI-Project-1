@@ -1,58 +1,70 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Best First Search class 
+ * 
+ * Created 2-15-2017
+ * @author Brad Burch and Katherine Martin
+ */
 public class BestFirstSearch {
 
-	List<Node> open = new ArrayList<Node>();
-	List<Node> closed = new ArrayList<Node>();
-	List<Node> path	= new ArrayList<Node>();
-	int expandedNodes = 0;
+	private int nodesExpanded = 0;
+	private int steps = 0;
+	private List<Node> open = new ArrayList<Node>();
+	private List<Node> closed = new ArrayList<Node>();
+	private List<Node> path	= new ArrayList<Node>();
+	private int[][] goalState = {{ 1, 2, 3 },
+			 					 { 8, 0, 4 }, 
+			 					 { 7, 6, 5 }};	
 	
+	public BestFirstSearch(){}
 	
-	public BestFirstSearch()
+	//Essentially the main method for Best First Search 
+	public void runBestFS(Node startNode)
 	{
-		
+		bestfs(startNode);
+		System.out.println("DONE");
+		System.out.println("Path: ");
+		for(int i = path.size()-1; i >= 0; i--)
+		{
+			steps++;
+			path.get(i).printNode();
+		}
+		System.out.println("Steps:          " + (steps-1));
+		System.out.println("Nodes Expanded: " + nodesExpanded);
 	}
 	
-	public void findPath(Node start)
+	public void calculatePath( Node startNode )
 	{
-		for(int i=path.size()-1; i > -1; i--)
+		Node currentNode = closed.get(closed.size()-1);
+		path.add(currentNode);
+		
+		while(!areSame(startNode.getCurrentState(), currentNode.getCurrentState()))
 		{
-			path.get(i).printNode();
+			Node parent = currentNode.getParent();
+			path.add(parent);
+			currentNode = parent;
 		}
 	}
 	
-	/*POTENTIALLY REMOVE*/
-	public void addOpen(Node node)
-	{
-		open.add(node);
-	}
-	
-	public void addClosed(Node node)
-	{
-		closed.add(node);
-	}
-	
-	public boolean isOpenEmpty()
-	{
-		return true;
-	}
-	
+	//Checks if a node is in the closed list 
 	public boolean isInClosed(Node node)
 	{
-		return true;
+		System.out.println("WHAT IS IN CLOSED");
+		for(int i = 0; i< closed.size(); i++)
+		{			
+			if(areSame(node.getCurrentState(), closed.get(i).getCurrentState()))
+			{
+				System.out.println("They are the same");
+				return true;
+			}
+		}
+		System.out.println("Stopped looking at closed");
+		return false;
 	}
 	
-	public int getPath()
-	{
-		return path.size();
-	}
-	
-	public int getExpanded()
-	{
-		return expandedNodes;
-	}
-	
+	//Calculates the children for a specific node
 	public void calculateChildren(Node node)
 	{
 		List<Node> children = node.calculateChildren();
@@ -64,6 +76,7 @@ public class BestFirstSearch {
 		}
 	}
 	
+	//Calculates the heuristic used for Best First Search 
 	public int calculateHeuristic(int[][] currentState)
 	{
 		State state = new State();
@@ -83,26 +96,73 @@ public class BestFirstSearch {
 				return count;
 	}
 	
+
+	//Checks if node is the goal state or not
+	public boolean isGoalState(int[][] checkState)
+	{
+		for(int i = 0; i < 3; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				if (checkState[i][j] != goalState[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	//Checks if two 2D arrays are the same
+	public boolean areSame(int[][] firstState, int[][] secondState)
+	{
+		for(int i = 0; i < 3; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				if (firstState[i][j] != goalState[i][j])
+				{
+					System.out.println("THEY ARE THE SAME");
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	//Best First Search Function 
 	public void bestfs(Node startNode)
 	{
 		open.add(startNode);
-		Node currentNode = open.get(0);
-		int[][] goal = currentNode.getGoalState();
+		Node actualNode = open.get(0);
 		
-		
-		while(goal != currentNode.getCurrentState() && open.size() != 0)
+		while(!isGoalState(actualNode.getCurrentState()) && open.size() != 0)
 		{
-			calculateChildren(currentNode);
-			expandedNodes++;
+			calculateChildren(actualNode);
+			nodesExpanded++;
 			
-			if (!isInClosed(currentNode))
+			if (!isInClosed(actualNode))
 			{
-				addClosed(currentNode);
+				closed.add(actualNode);
 			}
 			
-			open.remove(currentNode);
+			open.remove(actualNode);
 			
-//			int smallest = open.get(1).calculateHeuristic();
+			int smallest = open.get(1).getHeuristic();
+			Node nextNode = open.get(1);
+			
+			for(int i = 1; i < open.size(); i++)
+			{
+				int heuristic = open.get(i).getHeuristic();
+				if(heuristic < smallest)
+				{
+					smallest = heuristic; 
+					nextNode = open.get(i);
+				}
+			}
+			
+			actualNode = nextNode;
 		}
+		closed.add(actualNode);
 	}
 }

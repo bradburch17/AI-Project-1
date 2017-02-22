@@ -19,7 +19,7 @@ public class Driver {
 		Scanner reader = new Scanner(System.in);
 		int[][] puzzle = new int[3][3];
 		
-		System.out.println("This program is used to solve the Eight-Puzzle using IDS and A*.");
+		System.out.println("This program is used to solve the Eight-Puzzle using IDS and Best First Search.");
 
 		System.out.print("Please enter a puzzle file you would like to solve: ");
 		fileName = reader.nextLine();
@@ -36,7 +36,6 @@ public class Driver {
 					for (int j = 0; j < 3; j++)
 					{
 						puzzle[i][j] = scanner.nextInt();
-//						System.out.print (puzzle[i][j] + " ");
 					}
 					System.out.println();
 				}
@@ -44,7 +43,14 @@ public class Driver {
 			
 			Node node = new Node(puzzle);
 			IDS_Search idsSearch = new IDS_Search();
-			idsSearch.runIDS(node);
+			BestFirstSearch bestfs = new BestFirstSearch();
+			
+//			System.out.println("IDS");
+//			idsSearch.runIDS(node);
+//			System.out.println("-------------------------------------------------------------");
+			
+			System.out.println("BEST FIRST SEARCH");
+			bestfs.runBestFS(node);
 		}
 		catch(FileNotFoundException e)
 		{
