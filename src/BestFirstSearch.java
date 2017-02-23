@@ -24,15 +24,15 @@ public class BestFirstSearch {
 	public void runBestFS(Node startNode)
 	{
 		bestfs(startNode);
-		System.out.println("DONE");
+		calculatePath(startNode);
 		System.out.println("Path: ");
 		for(int i = path.size()-1; i >= 0; i--)
 		{
 			steps++;
 			path.get(i).printNode();
 		}
-		System.out.println("Steps:          " + (steps-1));
-		System.out.println("Nodes Expanded: " + nodesExpanded);
+		System.out.println("Steps (from initial state): " + (steps-1));
+		System.out.println("Nodes Expanded:             " + nodesExpanded);
 	}
 	
 	public void calculatePath( Node startNode )
@@ -51,29 +51,14 @@ public class BestFirstSearch {
 	//Checks if a node is in the closed list 
 	public boolean isInClosed(Node node)
 	{
-		System.out.println("WHAT IS IN CLOSED");
 		for(int i = 0; i< closed.size(); i++)
 		{			
 			if(areSame(node.getCurrentState(), closed.get(i).getCurrentState()))
 			{
-				System.out.println("They are the same");
 				return true;
 			}
 		}
-		System.out.println("Stopped looking at closed");
 		return false;
-	}
-	
-	//Calculates the children for a specific node
-	public void calculateChildren(Node node)
-	{
-		List<Node> children = node.calculateChildren();
-		while(children.size() !=0)
-		{
-			Node addChild = children.get(0);
-			open.add(addChild);
-			children.remove(0);
-		}
 	}
 	
 	//Calculates the heuristic used for Best First Search 
@@ -93,7 +78,7 @@ public class BestFirstSearch {
 				}
 			}
 		}
-				return count;
+		return count;
 	}
 	
 
@@ -120,14 +105,13 @@ public class BestFirstSearch {
 		{
 			for(int j = 0; j < 3; j++)
 			{
-				if (firstState[i][j] != goalState[i][j])
+				if (firstState[i][j] != secondState[i][j])
 				{
-					System.out.println("THEY ARE THE SAME");
-					return true;
+					return false;
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	//Best First Search Function 
@@ -138,7 +122,7 @@ public class BestFirstSearch {
 		
 		while(!isGoalState(actualNode.getCurrentState()) && open.size() != 0)
 		{
-			calculateChildren(actualNode);
+			open.addAll(actualNode.calculateChildren());
 			nodesExpanded++;
 			
 			if (!isInClosed(actualNode))

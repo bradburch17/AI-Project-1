@@ -29,6 +29,7 @@ public class Driver {
 			File file = new File (fileName);
 			Scanner scanner = new Scanner(file);
 			
+			System.out.println("Initial state loaded:");
 			while (scanner.hasNext())
 			{
 				for (int i = 0; i < 3; i ++)
@@ -36,18 +37,21 @@ public class Driver {
 					for (int j = 0; j < 3; j++)
 					{
 						puzzle[i][j] = scanner.nextInt();
+						System.out.print(puzzle[i][j] + " ");
+						
 					}
 					System.out.println();
 				}
 			}
+			System.out.println();
 			
 			Node node = new Node(puzzle);
 			IDS_Search idsSearch = new IDS_Search();
 			BestFirstSearch bestfs = new BestFirstSearch();
 			
-//			System.out.println("IDS");
-//			idsSearch.runIDS(node);
-//			System.out.println("-------------------------------------------------------------");
+			System.out.println("IDS");
+			idsSearch.runIDS(node);
+			System.out.println("-------------------------------------------------------------");
 			
 			System.out.println("BEST FIRST SEARCH");
 			bestfs.runBestFS(node);

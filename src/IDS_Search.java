@@ -33,15 +33,14 @@ public class IDS_Search
 			depth++;
 		}
 		calculatePath(startNode);
-		System.out.println("DONE");
 		System.out.println("Path: ");
 		for(int i = path.size()-1; i >= 0; i--)
 		{
 			steps++;
 			path.get(i).printNode();
 		}
-		System.out.println("Steps:          " + (steps-1));
-		System.out.println("Nodes Expanded: " + nodesExpanded);
+		System.out.println("Steps (from initial state): " + (steps-1));
+		System.out.println("Nodes Expanded:             " + nodesExpanded);
 	}
 	
 	//Checks if a node is  the goal state
